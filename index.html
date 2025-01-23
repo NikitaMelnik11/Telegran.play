@@ -2,449 +2,336 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>News.Forex.play</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Супер Кликер Делюкс</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            font-family: 'Arial', sans-serif;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
         body {
-            background: #0f0f1e;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #fff;
-            min-height: 100vh;
-            overflow: hidden;
-        }
-
-        .game-container {
-            max-width: 100%;
-            height: 100vh;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            touch-action: manipulation;
         }
 
-        /* Верхняя панель с характеристиками */
-        .stats-panel {
-            background: linear-gradient(to right, #1a1a2e, #16213e);
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            position: relative;
-            z-index: 1;
-        }
-
-        .stat {
+        #game-container {
             text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            max-width: 400px;
+            width: 90%;
         }
 
-        .stat-value {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #4a90e2;
-            text-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .stat-label {
-            font-size: 0.8em;
-            color: #8a8a8a;
-        }
-
-        /* Область битвы */
-        .battle-area {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            background: radial-gradient(circle at center, #1a1a2e 0%, #0f0f1e 100%);
-        }
-
-        .monster {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        #click-area {
             width: 150px;
             height: 150px;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%234a90e2"/><circle cx="35" cy="40" r="5" fill="white"/><circle cx="65" cy="40" r="5" fill="white"/><path d="M 30 60 Q 50 80 70 60" stroke="white" fill="none" stroke-width="3"/></svg>') center/contain no-repeat;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFD700"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"/></svg>') center/contain no-repeat;
+            margin: 20px auto;
             cursor: pointer;
             transition: transform 0.1s;
+            animation: pulse 2s infinite;
         }
 
-        .monster:active {
-            transform: translate(-50%, -50%) scale(0.95);
-        }
-
-        /* Панель действий */
-        .action-panel {
-            background: linear-gradient(to top, #1a1a2e, #16213e);
-            padding: 15px;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
-        }
-
-        .action-btn {
-            background: linear-gradient(to bottom, #4a90e2, #357abd);
-            border: none;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 1em;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-
-        .action-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        /* Эффекты урона */
-        .damage-text {
-            position: absolute;
-            color: #ff4444;
-            font-weight: bold;
-            font-size: 1.5em;
-            pointer-events: none;
-            animation: damage-float 1s ease-out forwards;
-            text-shadow: 2px 2px 2px rgba(0,0,0,0.5);
-        }
-
-        @keyframes damage-float {
-            0% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-        }
-
-        /* Частицы */
-        .particle {
-            position: absolute;
-            pointer-events: none;
-            border-radius: 50%;
-            animation: particle-float 0.5s linear forwards;
-        }
-
-        @keyframes particle-float {
-            0% {
-                transform: translate(0, 0) scale(1);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(var(--dx), var(--dy)) scale(0);
-                opacity: 0;
-            }
-        }
-
-        /* Прогресс бар */
-        .progress-bar {
-            height: 5px;
-            background: #2a2a2a;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: #4a90e2;
-            transition: width 0.3s ease;
-        }
-
-        /* Модальное окно */
-        .modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(to bottom, #1a1a2e, #16213e);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            z-index: 100;
-            text-align: center;
-        }
-
-        .modal h2 {
-            color: #4a90e2;
-            margin-bottom: 15px;
-        }
-
-        .modal button {
-            background: #4a90e2;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-
-        /* Анимации для улучшений */
-        .upgrade-effect {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, transparent 0%, rgba(74, 144, 226, 0.2) 100%);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        /* Индикатор уровня */
-        .level-indicator {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.5);
-            padding: 5px 15px;
-            border-radius: 15px;
-            font-size: 0.9em;
-            color: #4a90e2;
-        }
-
-        /* Анимация для новых уровней */
-        @keyframes level-up {
+        @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
+            50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
 
-        .level-up {
-            animation: level-up 0.5s ease;
+        #click-area:active {
+            transform: scale(0.95);
+        }
+
+        .stat {
+            font-size: 18px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .upgrade {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .upgrade:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .upgrade:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .upgrade:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #level-up {
+            background-color: #f39c12;
+        }
+
+        #level-up:hover {
+            background-color: #e67e22;
+        }
+
+        #achievements {
+            margin-top: 20px;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .achievement {
+            margin: 5px 0;
+            padding: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .achievement.unlocked {
+            background-color: rgba(76, 175, 80, 0.3);
+        }
+
+        #bonus {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: none;
+            animation: fadeInOut 5s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            10%, 90% { opacity: 1; }
+        }
+
+        #progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        #progress {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.5s ease-in-out;
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="stats-panel">
-            <div class="stat">
-                <div class="stat-value" id="gold">0</div>
-                <div class="stat-label">Золото</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value" id="damage">1</div>
-                <div class="stat-label">Урон</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value" id="level">1</div>
-                <div class="stat-label">Уровень</div>
-            </div>
-        </div>
-
-        <div class="battle-area">
-            <div class="level-indicator">Уровень подземелья: <span id="dungeon-level">1</span></div>
-            <div class="monster" id="monster"></div>
-        </div>
-
-        <div class="action-panel">
-            <button class="action-btn" id="upgrade-damage">Улучшить урон<br><span id="damage-cost">10</span> золота</button>
-            <button class="action-btn" id="next-dungeon">Следующее подземелье<br>+50% золота</button>
+    <div id="game-container">
+        <h1>Супер Кликер Делюкс</h1>
+        <div class="stat"><span>Монеты:</span> <span id="coins">0</span></div>
+        <div class="stat"><span>Монет в секунду:</span> <span id="cps">0</span></div>
+        <div class="stat"><span>Уровень:</span> <span id="level">1</span></div>
+        <div id="progress-bar"><div id="progress"></div></div>
+        <div id="click-area"></div>
+        <button id="click-upgrade" class="upgrade">Улучшить клик (10 монет)</button>
+        <button id="cps-upgrade" class="upgrade">Улучшить CPS (50 монет)</button>
+        <button id="level-up" class="upgrade">Повысить уровень (100 монет)</button>
+        <div id="achievements">
+            <h3>Достижения:</h3>
+            <div id="achievement-list"></div>
         </div>
     </div>
+    <div id="bonus">Бонус активирован!</div>
 
     <script>
-        class Game {
-            constructor() {
-                this.stats = {
-                    gold: 0,
-                    damage: 1,
-                    level: 1,
-                    dungeonLevel: 1
-                };
+        let gameState = {
+            coins: 0,
+            clickValue: 1,
+            cps: 0,
+            level: 1,
+            clickUpgradeCost: 10,
+            cpsUpgradeCost: 50,
+            levelUpCost: 100,
+            totalClicks: 0,
+            totalCoins: 0
+        };
 
-                this.monster = {
-                    health: 10,
-                    maxHealth: 10,
-                    goldValue: 1
-                };
+        const achievements = [
+            { id: 'clicks10', name: '10 кликов', condition: () => gameState.totalClicks >= 10 },
+            { id: 'clicks100', name: '100 кликов', condition: () => gameState.totalClicks >= 100 },
+            { id: 'coins1000', name: '1000 монет', condition: () => gameState.totalCoins >= 1000 },
+            { id: 'level5', name: 'Уровень 5', condition: () => gameState.level >= 5 },
+            { id: 'cps10', name: '10 CPS', condition: () => gameState.cps >= 10 }
+        ];
 
-                this.costs = {
-                    damageUpgrade: 10
-                };
+        const coinsDisplay = document.getElementById('coins');
+        const cpsDisplay = document.getElementById('cps');
+        const levelDisplay = document.getElementById('level');
+        const clickArea = document.getElementById('click-area');
+        const clickUpgradeButton = document.getElementById('click-upgrade');
+        const cpsUpgradeButton = document.getElementById('cps-upgrade');
+        const levelUpButton = document.getElementById('level-up');
+        const achievementList = document.getElementById('achievement-list');
+        const bonusDisplay = document.getElementById('bonus');
+        const progressBar = document.getElementById('progress');
 
-                this.loadGame();
-                this.setupEventListeners();
-                this.updateUI();
-            }
+        function saveGame() {
+            localStorage.setItem('clickerGameState', JSON.stringify(gameState));
+        }
 
-            setupEventListeners() {
-                document.getElementById('monster').addEventListener('click', () => this.attackMonster());
-                document.getElementById('upgrade-damage').addEventListener('click', () => this.upgradeDamage());
-                document.getElementById('next-dungeon').addEventListener('click', () => this.nextDungeon());
-            }
-
-            attackMonster() {
-                // Создаем эффект урона
-                this.createDamageText(this.stats.damage);
-                this.createParticles();
-
-                // Наносим урон монстру
-                this.monster.health -= this.stats.damage;
-
-                // Проверяем, убит ли монстр
-                if (this.monster.health <= 0) {
-                    this.defeatMonster();
-                }
-
-                // Добавляем визуальный эффект удара
-                const monster = document.getElementById('monster');
-                monster.style.transform = 'translate(-50%, -50%) scale(0.9)';
-                setTimeout(() => {
-                    monster.style.transform = 'translate(-50%, -50%) scale(1)';
-                }, 100);
-            }
-
-            defeatMonster() {
-                // Начисляем награду
-                this.stats.gold += this.monster.goldValue;
-                
-                // Повышаем уровень игрока
-                this.stats.level += 1;
-                this.showLevelUp();
-
-                // Создаем нового монстра
-                this.monster.maxHealth = Math.floor(10 * Math.pow(1.1, this.stats.dungeonLevel - 1));
-                this.monster.health = this.monster.maxHealth;
-                this.monster.goldValue = Math.floor(1 * Math.pow(1.1, this.stats.dungeonLevel - 1));
-
-                // Обновляем интерфейс
-                this.updateUI();
-                this.saveGame();
-            }
-
-            upgradeDamage() {
-                if (this.stats.gold >= this.costs.damageUpgrade) {
-                    this.stats.gold -= this.costs.damageUpgrade;
-                    this.stats.damage += 1;
-                    this.costs.damageUpgrade = Math.floor(this.costs.damageUpgrade * 1.5);
-                    this.showUpgradeEffect();
-                    this.updateUI();
-                    this.saveGame();
-                }
-            }
-
-            nextDungeon() {
-                if (this.stats.level >= this.stats.dungeonLevel * 5) {
-                    this.stats.dungeonLevel += 1;
-                    this.monster.maxHealth = Math.floor(10 * Math.pow(1.1, this.stats.dungeonLevel - 1));
-                    this.monster.health = this.monster.maxHealth;
-                    this.monster.goldValue = Math.floor(1 * Math.pow(1.1, this.stats.dungeonLevel - 1));
-                    this.updateUI();
-                    this.saveGame();
-                }
-            }
-
-            createDamageText(damage) {
-                const text = document.createElement('div');
-                text.className = 'damage-text';
-                text.textContent = `-${damage}`;
-                
-                const monster = document.getElementById('monster');
-                const rect = monster.getBoundingClientRect();
-                
-                text.style.left = `${rect.left + rect.width / 2}px`;
-                text.style.top = `${rect.top + rect.height / 2}px`;
-                
-                document.body.appendChild(text);
-                setTimeout(() => text.remove(), 1000);
-            }
-
-            createParticles() {
-                const monster = document.getElementById('monster');
-                const rect = monster.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-
-                for (let i = 0; i < 8; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    particle.style.left = `${centerX}px`;
-                    particle.style.top = `${centerY}px`;
-                    particle.style.width = '8px';
-                    particle.style.height = '8px';
-                    particle.style.background = '#4a90e2';
-
-                    const angle = (Math.PI * 2 * i) / 8;
-                    const speed = 100;
-                    const dx = Math.cos(angle) * speed;
-                    const dy = Math.sin(angle) * speed;
-
-                    particle.style.setProperty('--dx', `${dx}px`);
-                    particle.style.setProperty('--dy', `${dy}px`);
-
-                    document.body.appendChild(particle);
-                    setTimeout(() => particle.remove(), 500);
-                }
-            }
-
-            showUpgradeEffect() {
-                const effect = document.createElement('div');
-                effect.className = 'upgrade-effect';
-                document.body.appendChild(effect);
-                
-                // Запускаем анимацию
-                requestAnimationFrame(() => {
-                    effect.style.opacity = '1';
-                    setTimeout(() => {
-                        effect.style.opacity = '0';
-                        setTimeout(() => effect.remove(), 300);
-                    }, 300);
-                });
-            }
-
-            showLevelUp() {
-                const levelElement = document.getElementById('level');
-                levelElement.classList.add('level-up');
-                setTimeout(() => levelElement.classList.remove('level-up'), 500);
-            }
-
-            updateUI() {
-                document.getElementById('gold').textContent = Math.floor(this.stats.gold);
-                document.getElementById('damage').textContent = this.stats.damage;
-                document.getElementById('level').textContent = this.stats.level;
-                document.getElementById('dungeon-level').textContent = this.stats.dungeonLevel;
-                document.getElementById('damage-cost').textContent = this.costs.damageUpgrade;
-
-                // Обновляем доступность кнопок
-                document.getElementById('upgrade-damage').disabled = this.stats.gold < this.costs.damageUpgrade;
-                document.getElementById('next-dungeon').disabled = this.stats.level < this.stats.dungeonLevel * 5;
-            }
-
-            saveGame() {
-                localStorage.setItem('heroQuestSave', JSON.stringify({
-                    stats: this.stats,
-                    costs: this.costs
-                }));
-            }
-
-            loadGame() {
-                const savedGame = localStorage.getItem('heroQuestSave');
-                if (savedGame) {
-                    const gameData = JSON.parse(savedGame);
-                    this.stats = gameData.stats;
-                    this.costs = gameData.costs;
-                }
+        function loadGame() {
+            const savedState = localStorage.getItem('clickerGameState');
+            if (savedState) {
+                gameState = JSON.parse(savedState);
+                updateDisplay();
+                updateAchievements();
             }
         }
 
-        // Запускаем игру
-        window.onload = () => new Game();
+        function updateDisplay() {
+            coinsDisplay.textContent = Math.floor(gameState.coins);
+            cpsDisplay.textContent = gameState.cps;
+            levelDisplay.textContent = gameState.level;
+            clickUpgradeButton.textContent = `Улучшить клик (${gameState.clickUpgradeCost} монет)`;
+            cpsUpgradeButton.textContent = `Улучшить CPS (${gameState.cpsUpgradeCost} монет)`;
+            levelUpButton.textContent = `Повысить уровень (${gameState.levelUpCost} монет)`;
+            clickUpgradeButton.disabled = gameState.coins < gameState.clickUpgradeCost;
+            cpsUpgradeButton.disabled = gameState.coins < gameState.cpsUpgradeCost;
+            levelUpButton.disabled = gameState.coins < gameState.levelUpCost;
+
+            const progress = (gameState.coins % gameState.levelUpCost) / gameState.levelUpCost * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function updateAchievements() {
+            achievementList.innerHTML = '';
+            achievements.forEach(achievement => {
+                const achievementElem = document.createElement('div');
+                achievementElem.classList.add('achievement');
+                if (achievement.condition()) {
+                    achievementElem.classList.add('unlocked');
+                }
+                achievementElem.textContent = achievement.name;
+                achievementList.appendChild(achievementElem);
+            });
+        }
+
+        clickArea.addEventListener('click', () => {
+            gameState.coins += gameState.clickValue;
+            gameState.totalClicks++;
+            gameState.totalCoins += gameState.clickValue;
+            updateDisplay();
+            updateAchievements();
+            saveGame();
+
+            if (Math.random() < 0.01) {
+                activateBonus();
+            }
+        });
+
+        clickUpgradeButton.addEventListener('click', () => {
+            if (gameState.coins >= gameState.clickUpgradeCost) {
+                gameState.coins -= gameState.clickUpgradeCost;
+                gameState.clickValue++;
+                gameState.clickUpgradeCost = Math.floor(gameState.clickUpgradeCost * 1.5);
+                updateDisplay();
+                saveGame();
+            }
+        });
+
+        cpsUpgradeButton.addEventListener('click', () => {
+            if (gameState.coins >= gameState.cpsUpgradeCost) {
+                gameState.coins -= gameState.cpsUpgradeCost;
+                gameState.cps++;
+                gameState.cpsUpgradeCost = Math.floor(gameState.cpsUpgradeCost * 1.5);
+                updateDisplay();
+                saveGame();
+            }
+        });
+
+        levelUpButton.addEventListener('click', () => {
+            if (gameState.coins >= gameState.levelUpCost) {
+                gameState.coins -= gameState.levelUpCost;
+                gameState.level++;
+                gameState.clickValue = Math.floor(gameState.clickValue * 1.2);
+                gameState.cps = Math.floor(gameState.cps * 1.2);
+                gameState.levelUpCost = Math.floor(gameState.levelUpCost * 2);
+                updateDisplay();
+                updateAchievements();
+                saveGame();
+            }
+        });
+
+        function activateBonus() {
+            const bonusMultiplier = 2;
+            const bonusDuration = 30000; // 30 seconds
+
+            const originalClickValue = gameState.clickValue;
+            const originalCps = gameState.cps;
+
+            gameState.clickValue *= bonusMultiplier;
+            gameState.cps *= bonusMultiplier;
+
+            bonusDisplay.style.display = 'block';
+            bonusDisplay.textContent = `Бонус x${bonusMultiplier} активирован на 30 секунд!`;
+
+            setTimeout(() => {
+                gameState.clickValue = originalClickValue;
+                gameState.cps = originalCps;
+                bonusDisplay.style.display = 'none';
+                updateDisplay();
+            }, bonusDuration);
+        }
+
+        setInterval(() => {
+            gameState.coins += gameState.cps;
+            gameState.totalCoins += gameState.cps;
+            updateDisplay();
+            updateAchievements();
+            saveGame();
+        }, 1000);
+
+        loadGame();
+        updateDisplay();
+        updateAchievements();
     </script>
 </body>
 </html>
+
